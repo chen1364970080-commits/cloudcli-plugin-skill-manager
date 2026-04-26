@@ -342,13 +342,19 @@ export function mount(container, api) {
     let cached = null;
     let loading = false;
     let lastError = null;
+    let firstLoad = true;
     async function loadData() {
-        loading = true;
+        // Only show skeleton on first load — keep old content visible during polls
+        if (firstLoad) {
+            loading = true;
+            firstLoad = false;
+        }
         render(root, cached, loading, lastError, api.context);
         try {
             const data = (await api.rpc('GET', 'skills'));
             cached = data;
             lastError = null;
+            loading = false;
             render(root, data, false, null, api.context);
         }
         catch (err) {
@@ -362,6 +368,7 @@ export function mount(container, api) {
     loadData();
     pollInterval = setInterval(loadData, 10000);
     const unsubscribe = api.onContextChange(() => {
+        firstLoad = true;
         loadData();
     });
     container._skmUnsubscribe = unsubscribe;

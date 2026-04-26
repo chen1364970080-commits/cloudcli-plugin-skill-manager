@@ -415,15 +415,21 @@ export function mount(container: HTMLElement, api: PluginAPI): void {
   let cached: SkillsResponse | null = null;
   let loading = false;
   let lastError: string | null = null;
+  let firstLoad = true;
 
   async function loadData(): Promise<void> {
-    loading = true;
+    // Only show skeleton on first load — keep old content visible during polls
+    if (firstLoad) {
+      loading = true;
+      firstLoad = false;
+    }
     render(root, cached, loading, lastError, api.context);
 
     try {
       const data = (await api.rpc('GET', 'skills')) as SkillsResponse;
       cached = data;
       lastError = null;
+      loading = false;
       render(root, data, false, null, api.context);
     } catch (err) {
       lastError = (err as Error).message;
@@ -437,6 +443,7 @@ export function mount(container: HTMLElement, api: PluginAPI): void {
   pollInterval = setInterval(loadData, 10000);
 
   const unsubscribe = api.onContextChange(() => {
+    firstLoad = true;
     loadData();
   });
 
