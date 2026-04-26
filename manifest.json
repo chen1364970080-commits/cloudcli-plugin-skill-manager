@@ -1,0 +1,13 @@
+{
+  "name": "skill-manager",
+  "displayName": "Skill Manager",
+  "version": "1.0.0",
+  "description": "Browse, search, and manage Claude Code skills and rules — view metadata, origins, and trigger conditions.",
+  "author": "CloudCLI UI",
+  "icon": "icon.svg",
+  "type": "module",
+  "slot": "tab",
+  "entry": "dist/index.js",
+  "server": "dist/server.js",
+  "permissions": []
+}
