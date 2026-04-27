@@ -354,7 +354,7 @@ export function mount(container, api) {
     let lastError = null;
     let firstLoad = true;
     async function loadData() {
-        // Only show skeleton on first load — keep old content visible during polls
+        // Only show skeleton on first load — keep old content visible during refresh
         if (firstLoad) {
             loading = true;
             firstLoad = false;

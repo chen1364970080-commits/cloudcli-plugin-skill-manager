@@ -428,7 +428,7 @@ export function mount(container: HTMLElement, api: PluginAPI): void {
   let firstLoad = true;
 
   async function loadData(): Promise<void> {
-    // Only show skeleton on first load — keep old content visible during polls
+    // Only show skeleton on first load — keep old content visible during refresh
     if (firstLoad) {
       loading = true;
       firstLoad = false;
