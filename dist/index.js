@@ -339,7 +339,6 @@ function escHtml(s) {
         .replace(/"/g, '&quot;');
 }
 // ── Mount / Unmount ────────────────────────────────────────────────────
-let pollInterval = null;
 export function mount(container, api) {
     ensureStyles();
     const root = document.createElement('div');
@@ -353,6 +352,7 @@ export function mount(container, api) {
     let loading = false;
     let lastError = null;
     let firstLoad = true;
+    let currentProjectPath = null;
     async function loadData() {
         // Only show skeleton on first load — keep old content visible during refresh
         if (firstLoad) {
@@ -375,16 +375,23 @@ export function mount(container, api) {
             loading = false;
         }
     }
+    currentProjectPath = api.context.project?.path ?? null;
     loadData();
     // Wire refresh button
     root.addEventListener('click', (e) => {
         const btn = e.target.closest('#skm-refresh-btn');
-        if (btn)
+        if (btn) {
+            firstLoad = true;
             loadData();
+        }
     });
     const unsubscribe = api.onContextChange(() => {
-        firstLoad = true;
-        loadData();
+        const newProjectPath = api.context.project?.path ?? null;
+        if (newProjectPath !== currentProjectPath) {
+            currentProjectPath = newProjectPath;
+            firstLoad = true;
+            loadData();
+        }
     });
     container._skmUnsubscribe = unsubscribe;
 }

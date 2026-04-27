@@ -409,7 +409,6 @@ function escHtml(s: string): string {
 
 // ── Mount / Unmount ────────────────────────────────────────────────────
 
-let pollInterval: ReturnType<typeof setInterval> | null = null;
 
 export function mount(container: HTMLElement, api: PluginAPI): void {
   ensureStyles();
@@ -426,6 +425,7 @@ export function mount(container: HTMLElement, api: PluginAPI): void {
   let loading = false;
   let lastError: string | null = null;
   let firstLoad = true;
+  let currentProjectPath: string | null = null;
 
   async function loadData(): Promise<void> {
     // Only show skeleton on first load — keep old content visible during refresh
@@ -449,17 +449,25 @@ export function mount(container: HTMLElement, api: PluginAPI): void {
     }
   }
 
+  currentProjectPath = api.context.project?.path ?? null;
   loadData();
 
   // Wire refresh button
   root.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('#skm-refresh-btn');
-    if (btn) loadData();
+    if (btn) {
+      firstLoad = true;
+      loadData();
+    }
   });
 
   const unsubscribe = api.onContextChange(() => {
-    firstLoad = true;
-    loadData();
+    const newProjectPath = api.context.project?.path ?? null;
+    if (newProjectPath !== currentProjectPath) {
+      currentProjectPath = newProjectPath;
+      firstLoad = true;
+      loadData();
+    }
   });
 
   (container as any)._skmUnsubscribe = unsubscribe;
