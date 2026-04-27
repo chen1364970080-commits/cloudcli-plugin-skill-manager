@@ -216,8 +216,18 @@ function render(root, data, loading, error, ctx) {
             border-radius:50%;animation:skm-spin 0.7s linear infinite;
           "></span>` : ''}
         </div>
-        <div style="font-size:0.65rem;color:${c.muted};letter-spacing:0.04em">
-          ${totalCount} total · ${skillsCount} skills · ${rulesCount} rules
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:0.65rem;color:${c.muted};letter-spacing:0.04em">
+            ${totalCount} total · ${skillsCount} skills · ${rulesCount} rules
+          </span>
+          <button id="skm-refresh-btn" style="
+            background:none;border:1px solid ${c.border};cursor:pointer;
+            color:${c.muted};padding:4px 8px;border-radius:4px;
+            font-family:${MONO};font-size:0.65rem;display:flex;align-items:center;gap:4px;
+            transition:all 0.15s;
+          " title="Refresh">
+            ↻
+          </button>
         </div>
       </div>
 
@@ -366,7 +376,12 @@ export function mount(container, api) {
         }
     }
     loadData();
-    pollInterval = setInterval(loadData, 10000);
+    // Wire refresh button
+    root.addEventListener('click', (e) => {
+        const btn = e.target.closest('#skm-refresh-btn');
+        if (btn)
+            loadData();
+    });
     const unsubscribe = api.onContextChange(() => {
         firstLoad = true;
         loadData();
@@ -374,10 +389,6 @@ export function mount(container, api) {
     container._skmUnsubscribe = unsubscribe;
 }
 export function unmount(container) {
-    if (pollInterval !== null) {
-        clearInterval(pollInterval);
-        pollInterval = null;
-    }
     if (typeof container._skmUnsubscribe === 'function') {
         container._skmUnsubscribe();
         delete container._skmUnsubscribe;
